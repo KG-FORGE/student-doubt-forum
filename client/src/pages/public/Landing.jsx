@@ -34,28 +34,31 @@ function Landing() {
       <section className="py-16 bg-white">
         <Container>
           <div className="grid gap-6 md:grid-cols-3">
-            <Card className="p-6">
+            <Card hoverable className="p-6">
               <h2 className="text-xl font-semibold text-slate-900">
                 Ask Questions
               </h2>
+
               <p className="mt-3 text-slate-600">
                 Post your doubts and get help from students and teachers.
               </p>
             </Card>
 
-            <Card className="p-6">
+            <Card hoverable className="p-6">
               <h2 className="text-xl font-semibold text-slate-900">
                 Share Knowledge
               </h2>
+
               <p className="mt-3 text-slate-600">
                 Answer questions and help others understand difficult concepts.
               </p>
             </Card>
 
-            <Card className="p-6">
+            <Card hoverable className="p-6">
               <h2 className="text-xl font-semibold text-slate-900">
                 Learn Together
               </h2>
+
               <p className="mt-3 text-slate-600">
                 Build a learning community where everyone can teach and learn.
               </p>
