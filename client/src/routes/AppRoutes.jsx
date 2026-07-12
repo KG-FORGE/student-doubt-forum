@@ -5,6 +5,7 @@ import Landing from "../pages/public/Landing";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import Questions from "../pages/public/Questions";
+import AskQuestion from "../pages/questions/AskQuestion";
 
 function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/questions" element={<Questions />} />
+        <Route path="/ask" element={<AskQuestion />} />
       </Route>
     </Routes>
   );

@@ -1,10 +1,10 @@
-function Input({
+function Textarea({
   label,
-  type = "text",
   name,
   value,
   onChange,
   placeholder = "",
+  rows = 6,
   disabled = false,
   error = "",
 }) {
@@ -19,22 +19,21 @@ function Input({
         </label>
       )}
 
-      <input
+      <textarea
         id={name}
         name={name}
-        type={type}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        rows={rows}
         disabled={disabled}
-        className={`mt-2 w-full rounded-lg border bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`mt-2 w-full resize-y rounded-lg border bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
           error ? "border-rose-600" : "border-slate-200"
         }`}
       />
-
       {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
     </div>
   );
 }
 
-export default Input;
+export default Textarea;
