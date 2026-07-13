@@ -5,9 +5,19 @@ import Container from "../../components/common/Container";
 import QuestionCard from "../../components/common/QuestionCard";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
+import questions from "../../constants/questions";
 
 function Questions() {
   const [search, setSearch] = useState("");
+  const filteredQuestions = questions.filter((question) => {
+    const searchText = search.toLowerCase();
+
+    return (
+      question.title?.toLowerCase().includes(searchText) ||
+      question.description?.toLowerCase().includes(searchText) ||
+      question.tags?.some((tag) => tag?.toLowerCase().includes(searchText))
+    );
+  });
 
   return (
     <Container className="py-8">
@@ -35,23 +45,24 @@ function Questions() {
       </div>
 
       <div className="mt-8 space-y-6">
-        <QuestionCard
-          title="How does binary search work?"
-          description="I am confused about how the mid calculation works in binary search."
-          tags={["C++", "DSA"]}
-          votes={12}
-          answers={5}
-          author="Kartik"
-        />
-
-        <QuestionCard
-          title="What is useState in React?"
-          description="Can someone explain useState and controlled inputs in simple language?"
-          tags={["React", "JavaScript"]}
-          votes={8}
-          answers={3}
-          author="Gifty"
-        />
+        {filteredQuestions.length > 0 ? (
+          filteredQuestions.map((question) => (
+            <QuestionCard
+              key={question.id}
+              id={question.id}
+              title={question.title}
+              description={question.description}
+              tags={question.tags}
+              votes={question.votes}
+              answers={question.answers}
+              author={question.author}
+            />
+          ))
+        ) : (
+          <p className="py-12 text-center text-slate-500">
+            No questions found.
+          </p>
+        )}
       </div>
     </Container>
   );
