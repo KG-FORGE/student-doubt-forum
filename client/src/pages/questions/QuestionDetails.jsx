@@ -9,6 +9,7 @@ import Button from "../../components/common/Button";
 
 import questions from "../../constants/questions";
 import answers from "../../constants/answers";
+import VoteBox from "../../components/common/VoteBox";
 
 function QuestionDetails() {
   const { id } = useParams();
@@ -16,10 +17,12 @@ function QuestionDetails() {
   const [answer, setAnswer] = useState("");
   const [answerError, setAnswerError] = useState("");
 
-  const question = questions.find((question) => question.id === Number(id));
+  const [questionData, setQuestionData] = useState(
+    questions.find((question) => question.id === Number(id)),
+  );
 
-  const questionAnswers = answers.filter(
-    (answer) => answer.questionId === Number(id),
+  const [questionAnswers, setQuestionAnswers] = useState(
+    answers.filter((answer) => answer.questionId === Number(id)),
   );
 
   function handleAnswerSubmit(e) {
@@ -37,13 +40,54 @@ function QuestionDetails() {
 
     setAnswerError("");
 
-    console.log({
+    const newAnswer = {
+      id: Date.now(),
       questionId: Number(id),
       content: answer,
-    });
+      author: "You",
+      votes: 0,
+    };
+
+    setQuestionAnswers((prev) => [...prev, newAnswer]);
+
+    setAnswer("");
   }
 
-  if (!question) {
+  function handleUpvoteQuestion() {
+    setQuestionData((prev) => ({
+      ...prev,
+      votes: prev.votes + 1,
+    }));
+  }
+
+  function handleDownvoteQuestion() {
+    setQuestionData((prev) => ({
+      ...prev,
+      votes: prev.votes - 1,
+    }));
+  }
+
+  function handleAnswerUpvote(answerId) {
+    setQuestionAnswers((prev) =>
+      prev.map((answer) =>
+        answer.id === answerId
+          ? { ...answer, votes: answer.votes + 1 }
+          : answer,
+      ),
+    );
+  }
+
+  function handleAnswerDownvote(answerId) {
+    setQuestionAnswers((prev) =>
+      prev.map((answer) =>
+        answer.id === answerId
+          ? { ...answer, votes: answer.votes - 1 }
+          : answer,
+      ),
+    );
+  }
+
+  if (!questionData) {
     return (
       <Container className="py-8">
         <p className="text-slate-600">Question not found.</p>
@@ -55,13 +99,13 @@ function QuestionDetails() {
     <Container className="py-8">
       <Card className="p-8">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          {question.title}
+          {questionData.title}
         </h1>
 
-        <p className="mt-4 text-slate-600">{question.description}</p>
+        <p className="mt-4 text-slate-600">{questionData.description}</p>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          {question.tags.map((tag) => (
+          {questionData.tags.map((tag) => (
             <span
               key={tag}
               className="rounded-lg bg-indigo-50 px-2 py-1 text-sm text-indigo-600"
@@ -71,9 +115,22 @@ function QuestionDetails() {
           ))}
         </div>
 
-        <div className="mt-8 flex items-center justify-between text-sm text-slate-500">
-          <span>{question.votes} votes</span>
-          <span>Asked by {question.author}</span>
+        <div className="mt-8 flex items-start justify-between border-t border-slate-200 pt-6">
+          <div className="flex items-center gap-6">
+            <VoteBox
+              votes={questionData.votes}
+              onUpvote={handleUpvoteQuestion}
+              onDownvote={handleDownvoteQuestion}
+            />
+
+            <div>
+              <p className="text-sm text-slate-500">Asked by</p>
+
+              <p className="font-medium text-slate-800">
+                {questionData.author}
+              </p>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -89,6 +146,8 @@ function QuestionDetails() {
               content={answer.content}
               author={answer.author}
               votes={answer.votes}
+              onUpvote={() => handleAnswerUpvote(answer.id)}
+              onDownvote={() => handleAnswerDownvote(answer.id)}
             />
           ))}
         </div>
