@@ -102,36 +102,35 @@ function QuestionDetails() {
           {questionData.title}
         </h1>
 
-        <p className="mt-4 text-slate-600">{questionData.description}</p>
+        <div className="mt-6 flex items-center justify-between">
+          <VoteBox
+            votes={questionData.votes}
+            onUpvote={handleUpvoteQuestion}
+            onDownvote={handleDownvoteQuestion}
+          />
+
+          <p className="text-sm text-slate-600">
+            Asked by{" "}
+            <span className="font-medium text-slate-900">
+              {questionData.author}
+            </span>
+          </p>
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
           {questionData.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-lg bg-indigo-50 px-2 py-1 text-sm text-indigo-600"
+              className="rounded-md bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <div className="mt-8 flex items-start justify-between border-t border-slate-200 pt-6">
-          <div className="flex items-center gap-6">
-            <VoteBox
-              votes={questionData.votes}
-              onUpvote={handleUpvoteQuestion}
-              onDownvote={handleDownvoteQuestion}
-            />
+        <hr className="my-6 border-slate-200" />
 
-            <div>
-              <p className="text-sm text-slate-500">Asked by</p>
-
-              <p className="font-medium text-slate-800">
-                {questionData.author}
-              </p>
-            </div>
-          </div>
-        </div>
+        <p className="leading-7 text-slate-700">{questionData.description}</p>
       </Card>
 
       <div className="mt-10">
