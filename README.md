@@ -72,9 +72,11 @@ npm test
 # (Optional) Seed the initial Administrator account
 npm run seed:admin
 
-# Start the development server (runs on http://localhost:5000)
+# Start the development server (runs on http://localhost:5001)
 npm run dev
 ```
+
+> **macOS Port Note**: The backend runs on port **5001** (relocated from 5000 to avoid conflicts with Apple AirPlay Receiver / `ControlCenter` on macOS). The frontend Vite proxy forwards `/api/*` requests directly to `http://localhost:5001`.
 
 ### 2. Client Setup
 
@@ -99,7 +101,7 @@ npm run dev
 
 | Variable | Description | Default / Example |
 |---|---|---|
-| `PORT` | API server port | `5000` |
+| `PORT` | API server port (port 5001 avoids macOS AirPlay collision) | `5001` |
 | `NODE_ENV` | Environment mode | `development` |
 | `MONGODB_URI` | MongoDB connection URI | `mongodb://localhost:27017/student-doubt-forum` |
 | `JWT_ACCESS_SECRET` | Secret for 15-minute access tokens (min 64 chars in prod) | `<random-hex-string>` |
@@ -113,32 +115,45 @@ npm run dev
 | `EMAIL_PASS` | SMTP password | `<password>` |
 | `EMAIL_FROM` | Sender address | `noreply@doubtforum.local` |
 | `ADMIN_SEED_EMAIL` | Initial admin account email | `admin@doubtforum.local` |
-| `ADMIN_SEED_PASSWORD` | Initial admin password (min 8 chars, 1 uppercase, 1 digit) | `AdminPass123` |
+| `ADMIN_SEED_PASSWORD` | Initial admin password (min 8 chars, 1 uppercase, 1 digit) | `AdminPass123!` |
 | `ADMIN_SEED_NAME` | Initial admin display name | `System Admin` |
 
 > **Note on Email & Database**:
-> - Email delivery is **optional** during local development. If SMTP credentials are not configured, verification links and password reset tokens are logged to the console transparently.
-> - Vitest tests run against `mongodb-memory-server` and require no external MongoDB installation.
+> - **In-Memory Development Fallback**: If local MongoDB (`localhost:27017`) is not running, the development server automatically boots an ephemeral in-memory database (`mongodb-memory-server`) so you can run the app without local MongoDB setup.
+> - **Automated Demo Accounts**: In development mode with an empty database, default subjects and demo accounts are created automatically on startup:
+>   - **Admin:** `admin@doubtforum.local` / `AdminPass123!`
+>   - **Teacher:** `teacher@doubtforum.local` / `TeacherPass123!`
+>   - **Student:** `student@doubtforum.local` / `StudentPass123!`
+> - **Email Optional**: Email delivery is optional during local development. If SMTP credentials are not configured, verification links and password reset tokens are logged to the console transparently.
+> - **Test Isolation**: Vitest test suites run against an isolated `mongodb-memory-server` instance and require no running external MongoDB daemon.
 
 ---
 
 ## 📡 API Endpoints Summary
 
+### Service Discovery & Health
+- `GET /`: API welcome banner, client app URL, and root discovery
+- `GET /api`: Index of available API resources and routes
+- `GET /api/health`: Service health status, ISO timestamp, database connectivity, and environment mode
+
 ### Authentication (`/api/auth`)
-- `POST /register`: Register a new student account
-- `POST /login`: Authenticate and receive access token + refresh cookie
-- `POST /logout`: Invalidate refresh token and clear cookie
-- `GET /me`: Fetch authenticated user profile
-- `POST /refresh`: Rotate refresh token
-- `POST /forgot-password`: Dispatch password reset link or token
-- `POST /reset-password`: Reset credentials with token
+- `POST /register`: Register a new student account (public registration always creates students)
+- `POST /login`: Authenticate with email/password; receives access token + HttpOnly refresh cookie
+- `POST /logout`: Invalidate refresh token session and clear cookie
+- `GET /me`: Fetch authenticated user public profile
+- `POST /refresh`: Rotate refresh token and issue new access token (with token reuse detection)
+- `POST /forgot-password`: Dispatch password reset link or token (console-logged in dev)
+- `POST /reset-password`: Reset credentials with token (revokes all active sessions)
+- `PUT /change-password`: Change password when authenticated (revokes other active sessions)
+- `GET /verify-email`: Verify account via email token
+- `POST /resend-verification`: Resend email verification link
 
 ### Doubts / Questions (`/api/questions`)
 - `GET /`: Search, filter by subject/tags, sort (`newest`, `popular`, `unanswered`), and paginate
 - `POST /`: Post a new doubt (Authenticated)
 - `GET /:id`: Get doubt details and increment view count
 - `PUT /:id`: Update doubt (Author or Admin)
-- `DELETE /:id`: Delete doubt (Author or Admin)
+- `DELETE /:id`: Delete doubt (Author or Admin) with cascade cleanup of answers, votes, and bookmarks
 - `PATCH /:id/status`: Toggle doubt open/closed (Author or Admin)
 
 ### Answers (`/api/answers`)
