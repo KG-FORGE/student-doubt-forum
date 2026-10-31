@@ -12,7 +12,7 @@ const questions = [
   {
     id: 2,
     title: "What is useState in React?",
-    descriptions:
+    description:
       "Can someone explain useState and controlled inputs in simple language?",
     tags: ["React", "JavaScript"],
     votes: 8,
